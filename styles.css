@@ -35,6 +35,32 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);
 .empty{text-align:center;padding:28px;border:1px dashed var(--border);border-radius:14px;color:var(--muted)}
 dialog{width:min(850px,calc(100% - 24px));max-height:90vh;border:0;border-radius:18px;padding:0;box-shadow:0 20px 70px rgba(0,0,0,.25)}
 dialog::backdrop{background:rgba(0,0,0,.42)}.dialog-head{display:flex;justify-content:space-between;gap:15px;padding:22px;border-bottom:1px solid var(--border)}
+
+.site-footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  padding: 22px 16px 30px;
+  color: var(--muted);
+  font-size: 12px;
+  text-align: center;
+}
+
+.footer-divider {
+  opacity: 0.5;
+}
+
+@media(max-width:500px) {
+  .site-footer {
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .footer-divider {
+    display: none;
+  }
+}
 .dialog-head h2{margin:5px 0 0}.dialog-head+div,#dialogBody{padding:22px}.detail{margin-bottom:18px}.detail h4{margin:0 0 5px}.detail p{white-space:pre-wrap;line-height:1.55;margin:0}
 .attachment{display:inline-block;margin-top:6px}.comments{padding:0 22px 24px;border-top:1px solid var(--border)}.comment{padding:12px 0;border-bottom:1px solid var(--border)}.comment:last-child{border-bottom:0}.comment-head{font-size:12px;color:var(--muted);margin-bottom:5px}.comment p{white-space:pre-wrap;margin:0;line-height:1.5}
 @media(max-width:700px){.topbar{padding:12px 14px}.grid.two{grid-template-columns:1fr}.card{padding:18px}.whoami{display:none}.upload-box{align-items:stretch}.upload-box input,.upload-box button{width:100%}}
