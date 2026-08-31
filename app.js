@@ -177,7 +177,37 @@ function escAttr(s=""){return esc(s)}
 
 
 async function openAttachment(caseId) {
+
+  // Open the tab immediately while still directly triggered by the click
+  const win = window.open("", "_blank");
+
+  if (!win) {
+    alert("Your browser blocked the attachment window. Please allow pop-ups for Case Learning Hub.");
+    return;
+  }
+
+  // Show something while the file loads
+  win.document.write(`
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <title>Loading attachment...</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+      </head>
+      <body style="
+        font-family: Arial, sans-serif;
+        padding: 30px;
+        text-align: center;
+      ">
+        Loading attachment...
+      </body>
+    </html>
+  `);
+
+  win.document.close();
+
   try {
+
     const d = await api("getAttachment", { caseId });
 
     const a = d.attachment;
@@ -198,10 +228,11 @@ async function openAttachment(caseId) {
 
     const url = URL.createObjectURL(blob);
 
-    // IMAGES
+
+    // IMAGE
     if (mimeType.startsWith("image/")) {
 
-      const win = window.open("", "_blank");
+      win.document.open();
 
       win.document.write(`
         <!DOCTYPE html>
@@ -209,6 +240,7 @@ async function openAttachment(caseId) {
           <head>
             <title>${esc(a.name || "Case attachment")}</title>
             <meta name="viewport" content="width=device-width, initial-scale=1">
+
             <style>
               body {
                 margin: 0;
@@ -225,24 +257,33 @@ async function openAttachment(caseId) {
                 object-fit: contain;
               }
             </style>
+
           </head>
 
           <body>
             <img src="${url}" alt="Case attachment">
           </body>
+
         </html>
       `);
 
       win.document.close();
     }
 
-    // PDFs
+
+    // PDF
     else if (mimeType === "application/pdf") {
-      window.open(url, "_blank");
+
+      win.location.href = url;
+
     }
 
-    // OTHER FILE TYPES
+
+    // OTHER FILES
     else {
+
+      win.close();
+
       const link = document.createElement("a");
 
       link.href = url;
@@ -251,13 +292,32 @@ async function openAttachment(caseId) {
       document.body.appendChild(link);
       link.click();
       link.remove();
+
     }
+
 
     setTimeout(() => {
       URL.revokeObjectURL(url);
     }, 60000);
 
+
   } catch (err) {
-    alert("Could not open attachment: " + err.message);
+
+    win.document.open();
+
+    win.document.write(`
+      <html>
+        <body style="
+          font-family: Arial, sans-serif;
+          padding: 30px;
+        ">
+          <h3>Could not open attachment</h3>
+          <p>${esc(err.message)}</p>
+        </body>
+      </html>
+    `);
+
+    win.document.close();
+
   }
 }
