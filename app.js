@@ -132,7 +132,17 @@ async function openCase(id){
       ${c.results?detail("Key results / findings",c.results):""}
       ${detail("Learning point",c.learningPoint)}
       ${c.discussion?detail("Discussion",c.discussion):""}
-      ${c.attachmentUrl?`<div class="detail"><h4>Attachment</h4><a class="attachment" target="_blank" rel="noopener" href="${escAttr(c.attachmentUrl)}">${esc(c.attachmentName||"Open attachment")}</a></div>`:""}
+      ${c.attachmentFileId ? `
+        <div class="detail">
+          <h4>Attachment</h4>
+          <button
+            type="button"
+            class="secondary"
+            onclick="openAttachment('${escAttr(c.id)}')">
+            Open ${esc(c.attachmentName || "attachment")}
+          </button>
+        </div>
+      ` : ""}
     `;
     renderComments(d.comments);
     $("#caseDialog").showModal();
@@ -164,3 +174,35 @@ function escAttr(s=""){return esc(s)}
     const d=await api("me");currentUser=d.user;showApp();
   }catch(_){sessionStorage.removeItem("clh_session");sessionToken="";showLogin()}
 })();
+
+
+async function openAttachment(caseId) {
+  try {
+    const d = await api("getAttachment", { caseId });
+
+    const a = d.attachment;
+
+    const binary = atob(a.base64);
+    const bytes = new Uint8Array(binary.length);
+
+    for (let i = 0; i < binary.length; i++) {
+      bytes[i] = binary.charCodeAt(i);
+    }
+
+    const blob = new Blob(
+      [bytes],
+      { type: a.mimeType || "application/octet-stream" }
+    );
+
+    const url = URL.createObjectURL(blob);
+
+    window.open(url, "_blank");
+
+    setTimeout(() => {
+      URL.revokeObjectURL(url);
+    }, 60000);
+
+  } catch (err) {
+    alert("Could not open attachment: " + err.message);
+  }
+}
