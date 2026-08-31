@@ -1,192 +1,166 @@
-const EMAIL_API_URL =
-  "https://script.google.com/macros/s/AKfycbxQbrgEhVoGG8-V3tl6wZCAIgFewtix985ijIN-mrnVHlgsZnVSOtqLlGnY4pgAu31t/exec";
+const API_URL="https://script.google.com/macros/s/AKfycbxQbrgEhVoGG8-V3tl6wZCAIgFewtix985ijIN-mrnVHlgsZnVSOtqLlGnY4pgAu31t/exec";
+let sessionToken=sessionStorage.getItem("clh_session")||"";
+let currentUser=null;
+let currentCaseId=null;
+let selectedFile=null;
 
-const STORAGE_KEY = "case_learning_hub_cases_v1";
+const $=s=>document.querySelector(s);
+const $$=s=>[...document.querySelectorAll(s)];
 
-const $ = (selector) => document.querySelector(selector);
-const $$ = (selector) => [...document.querySelectorAll(selector)];
+async function api(action,payload={}){
+  const res=await fetch(API_URL,{
+    method:"POST",
+    headers:{"Content-Type":"text/plain;charset=utf-8"},
+    body:JSON.stringify({action,sessionToken,...payload})
+  });
+  const data=await res.json();
+  if(!data.success) throw new Error(data.error||"Request failed");
+  return data;
+}
 
-function getCases() {
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
-  } catch {
-    return [];
+function showApp(){
+  $("#loginView").classList.add("hidden");
+  $("#appView").classList.remove("hidden");
+  $("#logoutBtn").classList.remove("hidden");
+  $("#whoami").textContent=`${currentUser.displayName} · ${currentUser.role}`;
+  if(currentUser.role==="consultant"){
+    $$(".registrar-only").forEach(x=>x.classList.add("hidden"));
+    $("#libraryTitle").textContent="All submitted cases";
+  }else{
+    $$(".registrar-only").forEach(x=>x.classList.remove("hidden"));
+    $("#libraryTitle").textContent="My cases";
+  }
+  loadCases();
+}
+
+function showLogin(){
+  $("#loginView").classList.remove("hidden");
+  $("#appView").classList.add("hidden");
+  $("#logoutBtn").classList.add("hidden");
+}
+
+$("#loginForm").addEventListener("submit",async e=>{
+  e.preventDefault(); $("#loginStatus").textContent="Signing in…";
+  try{
+    const d=await api("login",{username:$("#username").value.trim(),password:$("#password").value});
+    sessionToken=d.sessionToken; currentUser=d.user;
+    sessionStorage.setItem("clh_session",sessionToken);
+    $("#loginStatus").textContent="";
+    showApp();
+  }catch(err){$("#loginStatus").textContent=err.message}
+});
+
+$("#logoutBtn").addEventListener("click",async()=>{
+  try{await api("logout")}catch(_){}
+  sessionStorage.removeItem("clh_session");sessionToken="";currentUser=null;showLogin();
+});
+
+$$(".tab").forEach(t=>t.addEventListener("click",()=>{
+  $$(".tab").forEach(x=>x.classList.remove("active"));
+  $$(".view").forEach(x=>x.classList.remove("active"));
+  t.classList.add("active");$(`#view-${t.dataset.view}`).classList.add("active");
+}));
+
+$("#refreshBtn").addEventListener("click",loadCases);
+
+async function loadCases(){
+  $("#caseList").innerHTML=`<div class="empty">Loading…</div>`;
+  try{
+    const d=await api("listCases");
+    if(!d.cases.length){$("#caseList").innerHTML=`<div class="empty">No cases yet.</div>`;return}
+    $("#caseList").innerHTML=d.cases.map(c=>`
+      <article class="case-card" data-id="${esc(c.id)}">
+        <h3>${esc(c.title)}</h3>
+        <div class="meta">${esc(c.specialty)} · ${esc(c.ownerDisplayName)} · ${new Date(c.createdAt).toLocaleString()}</div>
+        <span class="pill">${c.commentCount||0} response${(c.commentCount||0)===1?"":"s"}</span>
+      </article>`).join("");
+    $$(".case-card").forEach(c=>c.addEventListener("click",()=>openCase(c.dataset.id)));
+  }catch(err){
+    if(/session/i.test(err.message)){showLogin()}
+    $("#caseList").innerHTML=`<div class="empty">${esc(err.message)}</div>`;
   }
 }
 
-function setCases(cases) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(cases));
-  updateCaseCount();
+$("#cameraBtn").addEventListener("click",()=>$("#cameraInput").click());
+$("#attachment").addEventListener("change",e=>selectFile(e.target.files[0]));
+$("#cameraInput").addEventListener("change",e=>selectFile(e.target.files[0]));
+
+function selectFile(file){
+  selectedFile=file||null;
+  $("#fileName").textContent=selectedFile?selectedFile.name:"";
 }
 
-function updateCaseCount() {
-  $("#caseCount").textContent = getCases().length;
-}
-
-function showToast(message) {
-  const toast = $("#toast");
-  toast.textContent = message;
-  toast.classList.add("show");
-  clearTimeout(showToast.timer);
-  showToast.timer = setTimeout(() => toast.classList.remove("show"), 2600);
-}
-
-function setView(viewName) {
-  $$(".view").forEach((view) => view.classList.remove("active"));
-  $$(".tab").forEach((tab) => tab.classList.remove("active"));
-  $(`#view-${viewName}`).classList.add("active");
-  $(`.tab[data-view="${viewName}"]`).classList.add("active");
-
-  if (viewName === "library") renderLibrary();
-}
-
-$$(".tab").forEach((tab) => {
-  tab.addEventListener("click", () => setView(tab.dataset.view));
-});
-
-$("#caseForm").addEventListener("submit", (event) => {
-  event.preventDefault();
-
-  const item = {
-    id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
-    createdAt: new Date().toISOString(),
-    title: $("#title").value.trim(),
-    specialty: $("#specialty").value,
-    ageBand: $("#ageBand").value,
-    category: $("#category").value,
-    summary: $("#summary").value.trim(),
-    results: $("#results").value.trim(),
-    learningPoint: $("#learningPoint").value.trim(),
-    discussion: $("#discussion").value.trim()
-  };
-
-  const cases = getCases();
-  cases.unshift(item);
-  setCases(cases);
-  event.target.reset();
-  showToast("Case saved in this browser.");
-});
-
-$("#clearForm").addEventListener("click", () => {
-  $("#caseForm").reset();
-});
-
-function escapeHtml(value = "") {
-  return value.replace(/[&<>"']/g, (char) => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#039;"
-  }[char]));
-}
-
-function renderLibrary() {
-  const cases = getCases();
-  const container = $("#caseLibrary");
-
-  if (!cases.length) {
-    container.innerHTML = `<div class="empty">No cases saved yet.</div>`;
-    return;
-  }
-
-  container.innerHTML = cases.map((item) => `
-    <article class="case-item">
-      <h4>${escapeHtml(item.title)}</h4>
-      <div class="case-meta">
-        ${escapeHtml(item.specialty || "Unspecified")}
-        ${item.ageBand ? ` · ${escapeHtml(item.ageBand)}` : ""}
-        · ${new Date(item.createdAt).toLocaleString()}
-      </div>
-      <p><strong>Clinical summary:</strong> ${escapeHtml(item.summary)}</p>
-      ${item.results ? `<p><strong>Key results:</strong> ${escapeHtml(item.results)}</p>` : ""}
-      <p><strong>Learning point:</strong> ${escapeHtml(item.learningPoint)}</p>
-      ${item.discussion ? `<p><strong>Discussion:</strong> ${escapeHtml(item.discussion)}</p>` : ""}
-      <div class="case-actions">
-        <button class="ghost-button danger" data-delete="${item.id}" type="button">Delete</button>
-      </div>
-    </article>
-  `).join("");
-
-  $$("[data-delete]").forEach((button) => {
-    button.addEventListener("click", () => {
-      const updated = getCases().filter((item) => item.id !== button.dataset.delete);
-      setCases(updated);
-      renderLibrary();
-      showToast("Case deleted.");
-    });
+function fileToBase64(file){
+  return new Promise((resolve,reject)=>{
+    const r=new FileReader();
+    r.onload=()=>resolve(String(r.result).split(",")[1]);
+    r.onerror=reject;r.readAsDataURL(file);
   });
 }
 
-$("#exportCases").addEventListener("click", () => {
-  const data = JSON.stringify(getCases(), null, 2);
-  const blob = new Blob([data], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `case-learning-hub-${new Date().toISOString().slice(0, 10)}.json`;
-  a.click();
-  URL.revokeObjectURL(url);
-});
-
-function validInstitutionalEmail(email) {
-  const value = email.trim().toLowerCase();
-  return value.endsWith("@uct.ac.za") || value.endsWith("@myuct.ac.za");
-}
-
-$("#sendInvite").addEventListener("click", async () => {
-  const email = $("#inviteEmail").value.trim();
-  const subject = $("#inviteSubject").value.trim() || "Case Learning Hub";
-  const message = $("#inviteMessage").value.trim();
-
-  if (!validInstitutionalEmail(email)) {
-    $("#emailStatus").textContent = "Please use a UCT or myUCT email address.";
-    return;
-  }
-
-  if (!message) {
-    $("#emailStatus").textContent = "Please enter a message.";
-    return;
-  }
-
-  const button = $("#sendInvite");
-  button.disabled = true;
-  button.textContent = "Sending…";
-  $("#emailStatus").textContent = "";
-
-  try {
-    const response = await fetch(EMAIL_API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "text/plain;charset=utf-8"
-      },
-      body: JSON.stringify({ email, subject, message })
-    });
-
-    const result = await response.json();
-
-    if (!result.success) {
-      throw new Error(result.error || "Email failed to send.");
+$("#caseForm").addEventListener("submit",async e=>{
+  e.preventDefault();$("#submitStatus").textContent="Submitting…";
+  try{
+    let attachment=null;
+    if(selectedFile){
+      if(selectedFile.size>8*1024*1024) throw new Error("Attachment is too large. Maximum 8 MB.");
+      attachment={name:selectedFile.name,type:selectedFile.type||"application/octet-stream",base64:await fileToBase64(selectedFile)};
     }
-
-    $("#emailStatus").textContent = "Email sent.";
-    showToast("Email sent.");
-  } catch (error) {
-    console.error(error);
-    $("#emailStatus").textContent = "Email could not be sent. Check the Apps Script deployment.";
-  } finally {
-    button.disabled = false;
-    button.textContent = "Send email";
-  }
+    await api("createCase",{
+      title:$("#title").value.trim(),
+      specialty:$("#specialty").value,
+      summary:$("#summary").value.trim(),
+      results:$("#results").value.trim(),
+      learningPoint:$("#learningPoint").value.trim(),
+      discussion:$("#discussion").value.trim(),
+      attachment
+    });
+    e.target.reset();selectedFile=null;$("#fileName").textContent="";
+    $("#submitStatus").textContent="Case submitted.";
+    document.querySelector('.tab[data-view="cases"]').click();loadCases();
+  }catch(err){$("#submitStatus").textContent=err.message}
 });
 
-$("#themeToggle").addEventListener("click", () => {
-  document.body.classList.toggle("dark");
-  localStorage.setItem("case_learning_hub_theme", document.body.classList.contains("dark") ? "dark" : "light");
-});
-
-if (localStorage.getItem("case_learning_hub_theme") === "dark") {
-  document.body.classList.add("dark");
+async function openCase(id){
+  try{
+    const d=await api("getCase",{caseId:id});currentCaseId=id;
+    const c=d.case;
+    $("#dialogTitle").textContent=c.title;
+    $("#dialogBody").innerHTML=`
+      <div class="meta">${esc(c.specialty)} · submitted by ${esc(c.ownerDisplayName)} · ${new Date(c.createdAt).toLocaleString()}</div>
+      ${detail("Clinical summary",c.summary)}
+      ${c.results?detail("Key results / findings",c.results):""}
+      ${detail("Learning point",c.learningPoint)}
+      ${c.discussion?detail("Discussion",c.discussion):""}
+      ${c.attachmentUrl?`<div class="detail"><h4>Attachment</h4><a class="attachment" target="_blank" rel="noopener" href="${escAttr(c.attachmentUrl)}">${esc(c.attachmentName||"Open attachment")}</a></div>`:""}
+    `;
+    renderComments(d.comments);
+    $("#caseDialog").showModal();
+  }catch(err){alert(err.message)}
 }
 
-updateCaseCount();
+function detail(h,v){return `<div class="detail"><h4>${h}</h4><p>${esc(v||"")}</p></div>`}
+function renderComments(comments){
+  $("#commentList").innerHTML=comments.length?comments.map(x=>`
+    <div class="comment"><div class="comment-head">${esc(x.authorDisplayName)} · ${esc(x.authorRole)} · ${new Date(x.createdAt).toLocaleString()}</div><p>${esc(x.text)}</p></div>
+  `).join(""):`<p class="muted">No responses yet.</p>`;
+}
+$("#closeDialog").addEventListener("click",()=>$("#caseDialog").close());
+$("#commentForm").addEventListener("submit",async e=>{
+  e.preventDefault();$("#commentStatus").textContent="Posting…";
+  try{
+    const d=await api("addComment",{caseId:currentCaseId,text:$("#commentText").value.trim()});
+    $("#commentText").value="";$("#commentStatus").textContent="";
+    renderComments(d.comments);loadCases();
+  }catch(err){$("#commentStatus").textContent=err.message}
+});
+
+function esc(s=""){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
+function escAttr(s=""){return esc(s)}
+
+(async function restore(){
+  if(!sessionToken){showLogin();return}
+  try{
+    const d=await api("me");currentUser=d.user;showApp();
+  }catch(_){sessionStorage.removeItem("clh_session");sessionToken="";showLogin()}
+})();
