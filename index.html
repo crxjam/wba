@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Case Learning Hub — a lightweight learning portal for anonymised clinical case discussion." />
+  <title>Case Learning Hub</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">CLH</div>
+      <div>
+        <h1>Case Learning Hub</h1>
+        <p>Clinical learning, shared simply</p>
+      </div>
+    </div>
+    <button id="themeToggle" class="ghost-button" type="button" aria-label="Toggle dark mode">◐</button>
+  </header>
+
+  <main class="shell">
+    <section class="hero card">
+      <div>
+        <span class="eyebrow">CASE-BASED LEARNING</span>
+        <h2>Capture a teaching case and share the learning point.</h2>
+        <p>
+          This pilot stores cases only in this browser. Do not enter patient names,
+          folder numbers, ID numbers, dates of birth, contact details, or other identifying information.
+        </p>
+      </div>
+      <div class="hero-badge">
+        <strong id="caseCount">0</strong>
+        <span>saved cases</span>
+      </div>
+    </section>
+
+    <nav class="tabs" aria-label="Case Learning Hub sections">
+      <button class="tab active" data-view="new">New case</button>
+      <button class="tab" data-view="library">Case library</button>
+      <button class="tab" data-view="about">About</button>
+    </nav>
+
+    <section id="view-new" class="view active">
+      <form id="caseForm" class="card form-card">
+        <div class="section-heading">
+          <div>
+            <span class="eyebrow">NEW CASE</span>
+            <h3>Add a learning case</h3>
+          </div>
+          <button id="clearForm" type="button" class="ghost-button">Clear</button>
+        </div>
+
+        <div class="notice">
+          <strong>Keep it anonymised.</strong>
+          Use broad age bands and clinical context only. Do not include direct patient identifiers.
+        </div>
+
+        <div class="grid two">
+          <label>
+            Case title
+            <input id="title" name="title" required maxlength="100" placeholder="e.g. Unexpected severe hyponatraemia" />
+          </label>
+
+          <label>
+            Specialty / theme
+            <select id="specialty" name="specialty" required>
+              <option value="">Select one</option>
+              <option>Chemical Pathology</option>
+              <option>Endocrinology</option>
+              <option>Internal Medicine</option>
+              <option>Paediatrics</option>
+              <option>Emergency Medicine</option>
+              <option>Microbiology</option>
+              <option>Haematology</option>
+              <option>Other</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="grid two">
+          <label>
+            Age band
+            <select id="ageBand" name="ageBand">
+              <option value="">Not specified</option>
+              <option>Neonate</option>
+              <option>Child</option>
+              <option>Adolescent</option>
+              <option>18–39 years</option>
+              <option>40–64 years</option>
+              <option>65+ years</option>
+            </select>
+          </label>
+
+          <label>
+            Case category
+            <select id="category" name="category">
+              <option>Diagnostic reasoning</option>
+              <option>Laboratory interpretation</option>
+              <option>Pre-analytical issue</option>
+              <option>Analytical issue</option>
+              <option>Post-analytical issue</option>
+              <option>Management / follow-up</option>
+              <option>Quality improvement</option>
+            </select>
+          </label>
+        </div>
+
+        <label>
+          Clinical summary
+          <textarea id="summary" name="summary" required maxlength="1500"
+            placeholder="Short anonymised clinical context."></textarea>
+        </label>
+
+        <label>
+          Key results / findings
+          <textarea id="results" name="results" maxlength="1500"
+            placeholder="Relevant laboratory findings, imaging or other results — without identifiers."></textarea>
+        </label>
+
+        <label>
+          Learning point
+          <textarea id="learningPoint" name="learningPoint" required maxlength="1200"
+            placeholder="What should the reader remember from this case?"></textarea>
+        </label>
+
+        <label>
+          Discussion / explanation
+          <textarea id="discussion" name="discussion" maxlength="2500"
+            placeholder="Optional explanation, differential, pitfalls, or references."></textarea>
+        </label>
+
+        <div class="form-actions">
+          <button class="primary-button" type="submit">Save case</button>
+        </div>
+      </form>
+
+      <section class="card invite-card">
+        <div class="section-heading">
+          <div>
+            <span class="eyebrow">EMAIL</span>
+            <h3>Send a Case Learning Hub test invite</h3>
+          </div>
+        </div>
+        <p class="muted">
+          This uses the dedicated Case Learning Hub Google Apps Script service.
+          For safety, the backend only accepts UCT / myUCT recipient addresses.
+        </p>
+
+        <div class="grid invite-grid">
+          <label>
+            Recipient email
+            <input id="inviteEmail" type="email" placeholder="name@uct.ac.za" />
+          </label>
+          <label>
+            Subject
+            <input id="inviteSubject" type="text" value="Case Learning Hub" maxlength="120" />
+          </label>
+        </div>
+
+        <label>
+          Message
+          <textarea id="inviteMessage" maxlength="1500">A new learning case is available in Case Learning Hub.</textarea>
+        </label>
+
+        <div class="form-actions">
+          <button id="sendInvite" class="secondary-button" type="button">Send email</button>
+          <span id="emailStatus" class="status" aria-live="polite"></span>
+        </div>
+      </section>
+    </section>
+
+    <section id="view-library" class="view">
+      <div class="card">
+        <div class="section-heading">
+          <div>
+            <span class="eyebrow">LIBRARY</span>
+            <h3>Saved cases</h3>
+          </div>
+          <button id="exportCases" class="ghost-button" type="button">Export JSON</button>
+        </div>
+        <div id="caseLibrary" class="case-list"></div>
+      </div>
+    </section>
+
+    <section id="view-about" class="view">
+      <div class="card prose">
+        <span class="eyebrow">ABOUT</span>
+        <h3>About this pilot</h3>
+        <p>
+          Case Learning Hub is a lightweight proof-of-concept for case-based teaching.
+          This version is intentionally simple: cases are stored locally in the current
+          browser using localStorage and are not uploaded to a central clinical database.
+        </p>
+        <p>
+          It should not be used as a clinical record. Before routine use with identifiable
+          patient information, formal institutional information-governance and IT approval,
+          access controls, audit logging and an approved data store would be required.
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
