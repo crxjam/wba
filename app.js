@@ -189,14 +189,69 @@ async function openAttachment(caseId) {
       bytes[i] = binary.charCodeAt(i);
     }
 
+    const mimeType = a.mimeType || "application/octet-stream";
+
     const blob = new Blob(
       [bytes],
-      { type: a.mimeType || "application/octet-stream" }
+      { type: mimeType }
     );
 
     const url = URL.createObjectURL(blob);
 
-    window.open(url, "_blank");
+    // IMAGES
+    if (mimeType.startsWith("image/")) {
+
+      const win = window.open("", "_blank");
+
+      win.document.write(`
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <title>${esc(a.name || "Case attachment")}</title>
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <style>
+              body {
+                margin: 0;
+                background: #111;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                min-height: 100vh;
+              }
+
+              img {
+                max-width: 100%;
+                max-height: 100vh;
+                object-fit: contain;
+              }
+            </style>
+          </head>
+
+          <body>
+            <img src="${url}" alt="Case attachment">
+          </body>
+        </html>
+      `);
+
+      win.document.close();
+    }
+
+    // PDFs
+    else if (mimeType === "application/pdf") {
+      window.open(url, "_blank");
+    }
+
+    // OTHER FILE TYPES
+    else {
+      const link = document.createElement("a");
+
+      link.href = url;
+      link.download = a.name || "attachment";
+
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    }
 
     setTimeout(() => {
       URL.revokeObjectURL(url);
