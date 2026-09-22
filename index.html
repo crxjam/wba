@@ -1,156 +1,1028 @@
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
+
   <title>Case Learning Hub</title>
+
   <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
+
   <header class="topbar">
+
     <div class="brand">
+
       <div class="brand-mark">CLH</div>
+
       <div>
         <h1>Case Learning Hub</h1>
         <p>Case-based learning portal</p>
       </div>
+
     </div>
+
     <div class="top-actions">
+
       <span id="whoami" class="whoami"></span>
-      <button id="logoutBtn" class="ghost hidden">Log out</button>
+
+      <button
+        id="logoutBtn"
+        class="ghost hidden"
+        type="button"
+      >
+        Log out
+      </button>
+
     </div>
+
   </header>
 
+
   <main class="shell">
+
+    <!-- LOGIN -->
+
     <section id="loginView" class="login-wrap">
+
       <div class="card login-card">
+
         <span class="eyebrow">SIGN IN</span>
+
         <h2>Welcome back</h2>
-        <p class="muted">Registrars can see their own cases. Consultants can see and respond to all cases.</p>
+
+        <p class="muted">
+          Registrars can see their own cases and assessments.
+          Consultants can review and respond to submitted cases.
+        </p>
+
         <form id="loginForm">
-          <label>Username
-            <input id="username" autocomplete="username" required>
+
+          <label>
+            Username
+
+            <input
+              id="username"
+              autocomplete="username"
+              required
+            >
+
           </label>
-          <label>Password
-            <input id="password" type="password" autocomplete="current-password" required>
+
+          <label>
+            Password
+
+            <input
+              id="password"
+              type="password"
+              autocomplete="current-password"
+              required
+            >
+
           </label>
-          <button class="primary" type="submit">Sign in</button>
-          <p id="loginStatus" class="status"></p>
+
+          <button
+            class="primary"
+            type="submit"
+          >
+            Sign in
+          </button>
+
+          <p
+            id="loginStatus"
+            class="status"
+          ></p>
+
         </form>
+
       </div>
+
     </section>
+
+
+    <!-- MAIN APP -->
 
     <section id="appView" class="hidden">
+
       <nav class="tabs">
-        <button class="tab active" data-view="cases">Cases</button>
-        <button class="tab registrar-only" data-view="new">Submit case</button>
+
+        <button
+          class="tab active"
+          data-view="cases"
+          type="button"
+        >
+          Cases
+        </button>
+
+        <button
+          class="tab registrar-only"
+          data-view="new"
+          type="button"
+        >
+          Submit case
+        </button>
+
       </nav>
 
-      <section id="view-cases" class="view active">
+
+      <!-- CASE LIBRARY -->
+
+      <section
+        id="view-cases"
+        class="view active"
+      >
+
         <div class="card">
+
           <div class="section-heading">
+
             <div>
-              <span class="eyebrow">CASE LIBRARY</span>
-              <h2 id="libraryTitle">My cases</h2>
+
+              <span class="eyebrow">
+                CASE LIBRARY
+              </span>
+
+              <h2 id="libraryTitle">
+                My cases
+              </h2>
+
             </div>
-            <button id="refreshBtn" class="ghost">Refresh</button>
+
+            <button
+              id="refreshBtn"
+              class="ghost"
+              type="button"
+            >
+              Refresh
+            </button>
+
           </div>
-          <div id="caseList" class="case-list"></div>
+
+          <div
+            id="caseList"
+            class="case-list"
+          ></div>
+
         </div>
+
       </section>
 
-      <section id="view-new" class="view">
-        <form id="caseForm" class="card">
+
+      <!-- REGISTRAR WBA REQUEST -->
+
+      <section
+        id="view-new"
+        class="view"
+      >
+
+        <form
+          id="caseForm"
+          class="card"
+        >
+
           <div class="section-heading">
+
             <div>
-              <span class="eyebrow">NEW CASE</span>
-              <h2>Submit a learning case</h2>
+
+              <span class="eyebrow">
+                EPA / WBA
+              </span>
+
+              <h2>
+                Request an observation
+              </h2>
+
             </div>
+
           </div>
+
 
           <div class="notice">
-            <strong>Use anonymised information only.</strong> Do not enter patient names, folder numbers, ID numbers, dates of birth, contact details or other direct identifiers.
+
+            <strong>
+              Use anonymised information only.
+            </strong>
+
+            Do not enter patient names, folder numbers,
+            ID numbers, dates of birth, contact details
+            or other direct identifiers.
+
           </div>
+
+
+          <!-- REGISTRAR INFORMATION -->
+
+          <h3>
+            Registrar information
+          </h3>
+
 
           <div class="grid two">
-            <label>Case title
-              <input id="title" required maxlength="120">
+
+            <label>
+
+              Registrar full name
+
+              <input
+                id="registrarFullName"
+                required
+                maxlength="120"
+                placeholder="Enter your full name"
+              >
+
             </label>
-            <label>Category
-              <select id="specialty" required>
-                <option value="">Select</option>
-                <option>Quality Control</option>
-                <option>Result Authorisation</option>
-                <option>Protein Electrophoresis</option>
-                <option>Clinician Query</option>
-                <option>Exam Preparation</option>
+
+
+            <label>
+
+              Year of training
+
+              <select
+                id="trainingYear"
+                required
+              >
+
+                <option value="">
+                  Select
+                </option>
+
+                <option value="1">
+                  1
+                </option>
+
+                <option value="2">
+                  2
+                </option>
+
+                <option value="3">
+                  3
+                </option>
+
+                <option value="4">
+                  4
+                </option>
+
+                <option value="5">
+                  5
+                </option>
+
               </select>
+
             </label>
+
           </div>
 
-          <label>Clinical summary
-            <textarea id="summary" required maxlength="2500"></textarea>
+
+          <div class="grid two">
+
+            <label>
+
+              Rotation
+
+              <input
+                id="rotation"
+                required
+                maxlength="120"
+                placeholder="Enter rotation"
+              >
+
+            </label>
+
+
+            <label>
+
+              Date of observation
+
+              <input
+                id="observationDate"
+                type="date"
+                required
+              >
+
+            </label>
+
+          </div>
+
+
+          <!-- CASE INFORMATION -->
+
+          <h3>
+            Observation
+          </h3>
+
+
+          <div class="grid two">
+
+            <label>
+
+              Case title
+
+              <input
+                id="title"
+                required
+                maxlength="120"
+              >
+
+            </label>
+
+
+            <label>
+
+              Category
+
+              <select
+                id="specialty"
+                required
+              >
+
+                <option value="">
+                  Select
+                </option>
+
+                <option>
+                  Quality Control
+                </option>
+
+                <option>
+                  Result Authorisation
+                </option>
+
+                <option>
+                  Protein Electrophoresis
+                </option>
+
+                <option>
+                  Clinician Query
+                </option>
+
+                <option>
+                  Exam Preparation
+                </option>
+
+              </select>
+
+            </label>
+
+          </div>
+
+
+          <label>
+
+            Observation requested for
+
+            <textarea
+              id="summary"
+              required
+              maxlength="2500"
+              placeholder="Describe the activity you would like observed"
+            ></textarea>
+
           </label>
 
-          <label>Key results / findings
-            <textarea id="results" maxlength="2500"></textarea>
+
+          <!-- SELF ASSESSMENT -->
+
+          <fieldset class="wba-fieldset">
+
+            <legend>
+
+              Considering your performance during this observation,
+              please provide an overall rating of how much supervision
+              you feel you require for this activity
+
+            </legend>
+
+
+            <p class="muted small">
+
+              This is your self-assessment and will not be shown
+              to the consultant before they complete their assessment.
+
+            </p>
+
+
+            <label class="radio-option">
+
+              <input
+                type="radio"
+                name="selfSupervision"
+                value="I should observe only"
+                required
+              >
+
+              I should observe only
+
+            </label>
+
+
+            <label class="radio-option">
+
+              <input
+                type="radio"
+                name="selfSupervision"
+                value="I can do some aspects under guidance with supervisor actively participating"
+              >
+
+              I can do some aspects under guidance with supervisor
+              actively participating
+
+            </label>
+
+
+            <label class="radio-option">
+
+              <input
+                type="radio"
+                name="selfSupervision"
+                value="I can do most aspects with a supervisor just present in the room"
+              >
+
+              I can do most aspects with a supervisor just present
+              in the room
+
+            </label>
+
+
+            <label class="radio-option">
+
+              <input
+                type="radio"
+                name="selfSupervision"
+                value="I can do the activity unsupervised, with advice/assistance only if called upon"
+              >
+
+              I can do the activity unsupervised, with
+              advice/assistance only if called upon
+
+            </label>
+
+
+            <label class="radio-option">
+
+              <input
+                type="radio"
+                name="selfSupervision"
+                value="I can supervise others"
+              >
+
+              I can supervise others
+
+            </label>
+
+          </fieldset>
+
+
+          <!-- CONSULTANT -->
+
+          <label>
+
+            Consultant present for observation
+
+            <select
+              id="consultantId"
+              required
+            >
+
+              <option value="">
+                Select consultant
+              </option>
+
+            </select>
+
           </label>
 
-          <label>Learning point
-            <textarea id="learningPoint" required maxlength="1800"></textarea>
-          </label>
 
-          <label>Discussion
-            <textarea id="discussion" maxlength="3500"></textarea>
-          </label>
+          <!-- ATTACHMENT -->
 
           <div class="upload-box">
+
             <div>
-              <strong>Attach a file or image</strong>
-              <p class="muted small">PDF, image or document. On a phone you can also take a photo directly.</p>
+
+              <strong>
+                Attach a file or image
+              </strong>
+
+              <p class="muted small">
+
+                Optional. PDF, image or document.
+                On a phone you can also take a photo directly.
+
+              </p>
+
             </div>
-            <input id="attachment" type="file" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx">
-            <button id="cameraBtn" type="button" class="secondary">Take photo</button>
-            <input id="cameraInput" class="hidden" type="file" accept="image/*" capture="environment">
-            <span id="fileName" class="small muted"></span>
+
+
+            <input
+              id="attachment"
+              type="file"
+              accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx"
+            >
+
+
+            <button
+              id="cameraBtn"
+              type="button"
+              class="secondary"
+            >
+              Take photo
+            </button>
+
+
+            <input
+              id="cameraInput"
+              class="hidden"
+              type="file"
+              accept="image/*"
+              capture="environment"
+            >
+
+
+            <span
+              id="fileName"
+              class="small muted"
+            ></span>
+
           </div>
 
-          <button class="primary" type="submit">Submit case</button>
-          <p id="submitStatus" class="status"></p>
+
+          <button
+            class="primary"
+            type="submit"
+          >
+            Submit observation request
+          </button>
+
+
+          <p
+            id="submitStatus"
+            class="status"
+          ></p>
+
         </form>
+
       </section>
+
     </section>
+
   </main>
 
+
+  <!-- FOOTER -->
+
   <footer class="site-footer">
-    <span>Case Learning Hub</span>
-    <span class="footer-divider">•</span>
-    <span>Developed by James Croxford, 2026</span>
+
+    <span>
+      Case Learning Hub
+    </span>
+
+    <span class="footer-divider">
+      •
+    </span>
+
+    <span>
+      Developed by James Croxford, 2026
+    </span>
+
   </footer>
 
+
+  <!-- CASE DIALOG -->
+
   <dialog id="caseDialog">
+
     <div class="dialog-head">
+
       <div>
-        <span class="eyebrow">CASE</span>
+
+        <span class="eyebrow">
+          CASE
+        </span>
+
         <h2 id="dialogTitle"></h2>
+
       </div>
-      <button id="closeDialog" class="ghost">Close</button>
+
+
+      <button
+        id="closeDialog"
+        class="ghost"
+        type="button"
+      >
+        Close
+      </button>
+
     </div>
+
+
     <div id="dialogBody"></div>
 
+
     <section class="comments">
-      <h3>Discussion</h3>
+
+      <h3>
+        Discussion
+      </h3>
+
+
       <div id="commentList"></div>
+
+
       <form id="commentForm">
-        <label>Add response
-          <textarea id="commentText" required maxlength="2500"></textarea>
+
+        <label>
+
+          Add response
+
+          <textarea
+            id="commentText"
+            required
+            maxlength="2500"
+          ></textarea>
+
         </label>
-        <button class="primary" type="submit">Post response</button>
-        <span id="commentStatus" class="status"></span>
+
+
+        <button
+          class="primary"
+          type="submit"
+        >
+          Post response
+        </button>
+
+
+        <span
+          id="commentStatus"
+          class="status"
+        ></span>
+
       </form>
+
     </section>
+
   </dialog>
 
-  <script src="app.js"></script>
+
+  <!-- CONSULTANT WBA ASSESSMENT -->
+
+  <dialog id="assessmentDialog">
+
+    <div class="dialog-head">
+
+      <div>
+
+        <span class="eyebrow">
+          EPA / WBA
+        </span>
+
+        <h2>
+          Observation Report by Consultant
+        </h2>
+
+      </div>
+
+
+      <button
+        id="closeAssessmentDialog"
+        class="ghost"
+        type="button"
+      >
+        Close
+      </button>
+
+    </div>
+
+
+    <form id="assessmentForm">
+
+      <input
+        id="assessmentCaseId"
+        type="hidden"
+      >
+
+
+      <div class="notice">
+
+        <strong>
+          Please complete the observation report within 72 hours
+          of the activity taking place.
+        </strong>
+
+        You can use your smartphone's voice-to-text keyboard
+        for open-ended questions.
+
+      </div>
+
+
+      <!-- CONTEXT -->
+
+      <h3>
+        1) Context
+      </h3>
+
+
+      <label>
+
+        Activity observed
+
+        <input
+          id="activityObserved"
+          required
+          maxlength="250"
+        >
+
+      </label>
+
+
+      <label>
+
+        Description of activity
+
+        <textarea
+          id="activityDescription"
+          required
+          maxlength="2500"
+          placeholder="Brief description of what was observed"
+        ></textarea>
+
+      </label>
+
+
+      <fieldset class="wba-fieldset">
+
+        <legend>
+
+          Compared to the average for the type of activity evaluated,
+          this was (difficulty rating)
+
+        </legend>
+
+
+        <label class="radio-option">
+
+          <input
+            type="radio"
+            name="difficultyRating"
+            value="The same"
+            required
+          >
+
+          The same
+
+        </label>
+
+
+        <label class="radio-option">
+
+          <input
+            type="radio"
+            name="difficultyRating"
+            value="Slightly more difficult"
+          >
+
+          Slightly more difficult
+
+        </label>
+
+
+        <label class="radio-option">
+
+          <input
+            type="radio"
+            name="difficultyRating"
+            value="Much more difficult"
+          >
+
+          Much more difficult
+
+        </label>
+
+      </fieldset>
+
+
+      <label>
+
+        Supervisor who was physically present to do the observation
+
+        <input
+          id="supervisorPresent"
+          required
+          maxlength="120"
+        >
+
+      </label>
+
+
+      <!-- PERFORMANCE -->
+
+      <h3>
+        2) Performance
+      </h3>
+
+
+      <div class="notice">
+
+        <strong>
+          Keep in mind the following competency domains when describing
+          and rating the trainee's performance:
+        </strong>
+
+        <ol>
+
+          <li>
+            <strong>Medical expertise:</strong>
+            application of theoretical knowledge and
+            practical/technical skills
+          </li>
+
+          <li>
+            <strong>Collaboration:</strong>
+            working effectively within a team
+          </li>
+
+          <li>
+            <strong>Communication:</strong>
+            with colleagues, patients and families
+          </li>
+
+          <li>
+            <strong>Professionalism:</strong>
+            demonstrating high personal standards of behaviour
+          </li>
+
+          <li>
+            <strong>Leader/manager:</strong>
+            efficiency and cost-effective resource utilisation
+          </li>
+
+          <li>
+            <strong>Health advocate:</strong>
+            partnering with patients to improve their health
+          </li>
+
+          <li>
+            <strong>Scholar:</strong>
+            applying evidence-based practice
+          </li>
+
+        </ol>
+
+      </div>
+
+
+      <label>
+
+        Please describe the trainee's ability to perform the components
+        of this activity independently
+
+        <textarea
+          id="independentPerformance"
+          required
+          maxlength="3500"
+          placeholder="For example: could perform the activity independently but required assistance interpreting..."
+        ></textarea>
+
+      </label>
+
+
+      <fieldset class="wba-fieldset">
+
+        <legend>
+
+          Based on this observation, please provide an overall rating
+          of how much supervision the trainee needs the next time
+          they perform this activity
+
+        </legend>
+
+
+        <label class="radio-option">
+
+          <input
+            type="radio"
+            name="consultantSupervision"
+            value="Should observe only"
+            required
+          >
+
+          Should observe only
+
+        </label>
+
+
+        <label class="radio-option">
+
+          <input
+            type="radio"
+            name="consultantSupervision"
+            value="Can do some aspects under guidance with supervisor actively participating"
+          >
+
+          Can do some aspects under guidance with supervisor
+          actively participating
+
+        </label>
+
+
+        <label class="radio-option">
+
+          <input
+            type="radio"
+            name="consultantSupervision"
+            value="Can do most aspects with a supervisor just present in the room"
+          >
+
+          Can do most aspects with a supervisor just present
+          in the room
+
+        </label>
+
+
+        <label class="radio-option">
+
+          <input
+            type="radio"
+            name="consultantSupervision"
+            value="Can do the activity unsupervised, with advice/assistance only if called upon"
+          >
+
+          Can do the activity unsupervised, with
+          advice/assistance only if called upon
+
+        </label>
+
+
+        <label class="radio-option">
+
+          <input
+            type="radio"
+            name="consultantSupervision"
+            value="Can supervise others"
+          >
+
+          Can supervise others
+
+        </label>
+
+      </fieldset>
+
+
+      <!-- FEEDBACK -->
+
+      <h3>
+        3) Feedback
+      </h3>
+
+
+      <label>
+
+        Give at least 1 aspect of the activity done well
+
+        <textarea
+          id="doneWell"
+          required
+          maxlength="2500"
+        ></textarea>
+
+      </label>
+
+
+      <label>
+
+        Give at least 1 suggestion for something that could be
+        done differently
+
+        <textarea
+          id="doDifferently"
+          required
+          maxlength="2500"
+        ></textarea>
+
+      </label>
+
+
+      <button
+        class="primary"
+        type="submit"
+      >
+        Submit assessment
+      </button>
+
+
+      <p
+        id="assessmentStatus"
+        class="status"
+      ></p>
+
+    </form>
+
+  </dialog>
+
+
+  <script src="app.js?v=6"></script>
+
 </body>
+
 </html>
