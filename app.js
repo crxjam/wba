@@ -51,6 +51,7 @@ function showApp() {
   $("#loginView").classList.add("hidden");
   $("#appView").classList.remove("hidden");
   $("#logoutBtn").classList.remove("hidden");
+  $("#changePasswordBtn").classList.remove("hidden");
 
   $("#whoami").textContent =
     `${currentUser.displayName} · ${currentUser.role}`;
@@ -91,6 +92,9 @@ function showLogin() {
     .classList.add("hidden");
 
   $("#logoutBtn")
+    .classList.add("hidden");
+  
+  $("#changePasswordBtn")
     .classList.add("hidden");
 }
 
@@ -1720,3 +1724,82 @@ function escAttr(s = "") {
 
   return esc(s);
 }
+
+/* =========================================================
+   CHANGE PASSWORD
+   ========================================================= */
+
+$("#changePasswordBtn").addEventListener("click", () => {
+
+  $("#passwordForm").reset();
+  $("#passwordStatus").textContent = "";
+
+  $("#passwordDialog").showModal();
+
+});
+
+
+$("#closePasswordDialog").addEventListener("click", () => {
+
+  $("#passwordDialog").close();
+
+});
+
+
+$("#passwordForm").addEventListener("submit", async e => {
+
+  e.preventDefault();
+
+  const currentPassword = $("#currentPassword").value;
+  const newPassword = $("#newPassword").value;
+  const confirmPassword = $("#confirmPassword").value;
+
+  if (newPassword !== confirmPassword) {
+
+    $("#passwordStatus").textContent =
+      "The new passwords do not match.";
+
+    return;
+  }
+
+  if (newPassword.length < 12) {
+
+    $("#passwordStatus").textContent =
+      "Your new password must contain at least 12 characters.";
+
+    return;
+  }
+
+  $("#passwordStatus").textContent =
+    "Updating password…";
+
+  const submitButton = $("#passwordForm button[type='submit']");
+  submitButton.disabled = true;
+
+  try {
+
+    await api("changePassword", {
+      currentPassword,
+      newPassword
+    });
+
+    $("#passwordForm").reset();
+
+    $("#passwordStatus").textContent =
+      "Password changed successfully.";
+
+    setTimeout(() => {
+      $("#passwordDialog").close();
+    }, 1200);
+
+  } catch (err) {
+
+    $("#passwordStatus").textContent = err.message;
+
+  } finally {
+
+    submitButton.disabled = false;
+
+  }
+
+});
