@@ -26,9 +26,17 @@
     </div>
 
     <div class="top-actions">
-
+    
       <span id="whoami" class="whoami"></span>
-
+    
+      <button
+        id="changePasswordBtn"
+        class="ghost hidden"
+        type="button"
+      >
+        Change password
+      </button>
+    
       <button
         id="logoutBtn"
         class="ghost hidden"
@@ -36,7 +44,7 @@
       >
         Log out
       </button>
-
+    
     </div>
 
   </header>
@@ -1021,7 +1029,78 @@
   </dialog>
 
 
-  <script src="app.js?v=7"></script>
+  <!-- CHANGE PASSWORD DIALOG -->
+
+  <dialog id="passwordDialog">
+
+    <div class="dialog-head">
+
+      <div>
+        <span class="eyebrow">ACCOUNT</span>
+        <h2>Change password</h2>
+      </div>
+
+      <button
+        id="closePasswordDialog"
+        class="ghost"
+        type="button"
+      >
+        Close
+      </button>
+
+    </div>
+
+    <form id="passwordForm">
+
+      <label>
+        Current password
+        <input
+          id="currentPassword"
+          type="password"
+          autocomplete="current-password"
+          required
+        >
+      </label>
+
+      <label>
+        New password (minimum 12 characters)
+        <input
+          id="newPassword"
+          type="password"
+          autocomplete="new-password"
+          minlength="12"
+          required
+        >
+      </label>
+
+      <label>
+        Confirm new password
+        <input
+          id="confirmPassword"
+          type="password"
+          autocomplete="new-password"
+          minlength="12"
+          required
+        >
+      </label>
+
+      <button
+        class="primary"
+        type="submit"
+      >
+        Save new password
+      </button>
+
+      <p
+        id="passwordStatus"
+        class="status"
+      ></p>
+
+    </form>
+
+  </dialog>
+
+  <script src="app.js?v=8"></script>
 
 </body>
 
