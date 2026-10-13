@@ -93,6 +93,14 @@
           </label>
 
           <button
+            id="forgotPasswordBtn"
+            class="ghost"
+            type="button"
+          >
+            Forgot password?
+          </button>
+          
+          <button
             class="primary"
             type="submit"
           >
@@ -1100,7 +1108,106 @@
 
   </dialog>
 
-  <script src="app.js?v=8"></script>
+  <!-- FORGOT PASSWORD -->
+  
+  <dialog id="forgotPasswordDialog">
+  
+    <div class="dialog-head">
+      <div>
+        <span class="eyebrow">ACCOUNT RECOVERY</span>
+        <h2>Forgot password?</h2>
+      </div>
+  
+      <button
+        id="closeForgotPasswordDialog"
+        class="ghost"
+        type="button"
+      >
+        Close
+      </button>
+    </div>
+  
+    <form id="forgotPasswordForm">
+  
+      <p class="muted">
+        Enter your Case Learning Hub username.
+        If your account is active, we will email
+        a password reset link to your registered address.
+      </p>
+  
+      <label>
+        Username
+        <input
+          id="forgotUsername"
+          autocomplete="username"
+          required
+        >
+      </label>
+  
+      <button class="primary" type="submit">
+        Send reset link
+      </button>
+  
+      <p id="forgotPasswordStatus" class="status"></p>
+  
+    </form>
+  
+  </dialog>
+  
+  
+  <!-- RESET PASSWORD -->
+  
+  <dialog id="resetPasswordDialog">
+  
+    <div class="dialog-head">
+      <div>
+        <span class="eyebrow">ACCOUNT RECOVERY</span>
+        <h2>Choose a new password</h2>
+      </div>
+    </div>
+  
+    <form id="resetPasswordForm">
+  
+      <p class="muted">
+        Your reset link expires after 30 minutes
+        and can only be used once.
+      </p>
+  
+      <label>
+        New password (minimum 12 characters)
+        <input
+          id="resetNewPassword"
+          type="password"
+          autocomplete="new-password"
+          minlength="12"
+          maxlength="200"
+          required
+        >
+      </label>
+  
+      <label>
+        Confirm new password
+        <input
+          id="resetConfirmPassword"
+          type="password"
+          autocomplete="new-password"
+          minlength="12"
+          maxlength="200"
+          required
+        >
+      </label>
+  
+      <button class="primary" type="submit">
+        Reset password
+      </button>
+  
+      <p id="resetPasswordStatus" class="status"></p>
+  
+    </form>
+  
+  </dialog>
+
+  <script src="app.js?v=9"></script>
 
 </body>
 
