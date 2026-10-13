@@ -1803,3 +1803,213 @@ $("#passwordForm").addEventListener("submit", async e => {
   }
 
 });
+
+
+/* =========================================================
+   FORGOT PASSWORD / PASSWORD RESET
+   ========================================================= */
+
+let pendingResetToken = "";
+
+
+// Open the Forgot password window.
+
+$("#forgotPasswordBtn").addEventListener("click", () => {
+
+  $("#forgotPasswordForm").reset();
+  $("#forgotPasswordStatus").textContent = "";
+
+  $("#forgotUsername").value =
+    $("#username").value.trim();
+
+  $("#forgotPasswordDialog").showModal();
+
+});
+
+
+$("#closeForgotPasswordDialog").addEventListener("click", () => {
+
+  $("#forgotPasswordDialog").close();
+
+});
+
+
+// Request a reset email.
+
+$("#forgotPasswordForm").addEventListener(
+  "submit",
+  async e => {
+
+    e.preventDefault();
+
+    const username =
+      $("#forgotUsername").value.trim();
+
+    const status =
+      $("#forgotPasswordStatus");
+
+    const button =
+      $("#forgotPasswordForm button[type='submit']");
+
+    status.textContent = "Processing request...";
+    button.disabled = true;
+
+    try {
+
+      const result = await api(
+        "requestPasswordReset",
+        { username }
+      );
+
+      status.textContent = result.message;
+
+    } catch (err) {
+
+      status.textContent =
+        "Unable to process the request right now. Please try again later.";
+
+    } finally {
+
+      button.disabled = false;
+
+    }
+
+  }
+);
+
+
+// Open the reset form when the user follows
+// a reset link from their email.
+
+function checkPasswordResetLink() {
+
+  const match =
+    window.location.hash.match(/^#reset=([a-f0-9]{96})$/i);
+
+  if (!match) {
+    return;
+  }
+
+  pendingResetToken = match[1];
+
+  $("#resetPasswordForm").reset();
+  $("#resetPasswordStatus").textContent = "";
+
+  // Remove the token from the browser address bar.
+  // Keep it only in memory while the form is open.
+  history.replaceState(
+    null,
+    "",
+    window.location.pathname + window.location.search
+  );
+
+  if (!$("#resetPasswordDialog").open) {
+    $("#resetPasswordDialog").showModal();
+  }
+
+}
+
+
+// Submit the chosen new password.
+
+$("#resetPasswordForm").addEventListener(
+  "submit",
+  async e => {
+
+    e.preventDefault();
+
+    const newPassword =
+      $("#resetNewPassword").value;
+
+    const confirmPassword =
+      $("#resetConfirmPassword").value;
+
+    const status =
+      $("#resetPasswordStatus");
+
+    const button =
+      $("#resetPasswordForm button[type='submit']");
+
+    if (newPassword !== confirmPassword) {
+
+      status.textContent =
+        "The passwords do not match.";
+
+      return;
+    }
+
+    if (newPassword.length < 12) {
+
+      status.textContent =
+        "Your password must contain at least 12 characters.";
+
+      return;
+    }
+
+    if (!pendingResetToken) {
+
+      status.textContent =
+        "Reset link missing. Please request a new link.";
+
+      return;
+    }
+
+    status.textContent = "Resetting password...";
+    button.disabled = true;
+
+    try {
+
+      const result = await api(
+        "resetPassword",
+        {
+          resetToken: pendingResetToken,
+          newPassword
+        }
+      );
+
+      pendingResetToken = "";
+
+      $("#resetPasswordForm").reset();
+
+      status.textContent = result.message;
+
+      // Clear any previous login session in this browser.
+      sessionStorage.removeItem("clh_session");
+      sessionToken = "";
+      currentUser = null;
+
+      setTimeout(() => {
+
+        $("#resetPasswordDialog").close();
+
+        showLogin();
+
+        $("#loginStatus").textContent =
+          "Password reset successful. Sign in with your new password.";
+
+      }, 1500);
+
+    } catch (err) {
+
+      status.textContent = err.message;
+
+    } finally {
+
+      button.disabled = false;
+
+    }
+
+  }
+);
+
+
+// Handle a reset link opened directly or while
+// the website is already open.
+
+window.addEventListener(
+  "hashchange",
+  checkPasswordResetLink
+);
+
+checkPasswordResetLink();
+
